@@ -73,6 +73,10 @@ public class ExcellentChallenges extends NexPlugin<ExcellentChallenges> implemen
             case V1_19_R1 -> new V1_19_R1();
             case V1_19_R2 -> new V1_19_R2();
             case V1_19_R3 -> new V1_19_R3();
+            default ->
+            {
+                yield null;
+            }
         };
         return true;
     }
