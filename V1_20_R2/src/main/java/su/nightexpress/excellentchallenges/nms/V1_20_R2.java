@@ -20,7 +20,7 @@ public class V1_20_R2 extends ChallengeNMS {
         if (BREWING_A == null) return true;
 
         CraftWorld craftWorld = (CraftWorld) stand.getWorld();
-        TileEntity tile = craftWorld.getHandle().getBlockEntity(new BlockPosition(stand.getX(), stand.getY(), stand.getZ()));
+        TileEntity tile = craftWorld.getHandle().getBlockEntity(new BlockPosition(stand.getX(), stand.getY(), stand.getZ()), true);
         if (tile == null) return false;
 
         //if (!(tile instanceof TileEntityBrewingStand)) return false;
