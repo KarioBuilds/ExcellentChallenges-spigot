@@ -23,8 +23,11 @@ public class Perms {
     static {
         PLUGIN.addChildren(COMMAND, REROLL);
 
-        COMMAND.addChildren(COMMAND_OPEN,
+        COMMAND.addChildren(
+            COMMAND_OPEN,
             COMMAND_REROLL_TOKENS, COMMAND_REROLL_TOKENS_GIVE, COMMAND_REROLL_TOKENS_SET, COMMAND_REROLL_TOKENS_TAKE,
-            COMMAND_RESET, COMMAND_RELOAD);
+            COMMAND_RESET,
+            COMMAND_RELOAD
+        );
     }
 }

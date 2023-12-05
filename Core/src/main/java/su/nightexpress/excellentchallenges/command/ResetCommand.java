@@ -1,25 +1,25 @@
 package su.nightexpress.excellentchallenges.command;
 
+import su.nightexpress.excellentchallenges.config.Config;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.command.AbstractCommand;
 import su.nexmedia.engine.api.command.CommandResult;
 import su.nexmedia.engine.utils.CollectionsUtil;
-import su.nightexpress.excellentchallenges.ExcellentChallenges;
+import su.nightexpress.excellentchallenges.ExcellentChallengesPlugin;
 import su.nightexpress.excellentchallenges.Perms;
 import su.nightexpress.excellentchallenges.Placeholders;
-import su.nightexpress.excellentchallenges.challenge.ChallengeType;
-import su.nightexpress.excellentchallenges.config.Config;
+import su.nightexpress.excellentchallenges.challenge.ChallengeCategory;
 import su.nightexpress.excellentchallenges.config.Lang;
 import su.nightexpress.excellentchallenges.data.object.ChallengeUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResetCommand extends AbstractCommand<ExcellentChallenges> {
+public class ResetCommand extends AbstractCommand<ExcellentChallengesPlugin> {
 
-    public ResetCommand(@NotNull ExcellentChallenges plugin) {
+    public ResetCommand(@NotNull ExcellentChallengesPlugin plugin) {
         super(plugin, new String[]{"reset"}, Perms.COMMAND_RESET);
         this.setDescription(plugin.getMessage(Lang.COMMAND_RESET_DESC));
         this.setUsage(plugin.getMessage(Lang.COMMAND_RESET_USAGE));
@@ -32,7 +32,7 @@ public class ResetCommand extends AbstractCommand<ExcellentChallenges> {
             return CollectionsUtil.playerNames(player);
         }
         if (arg == 2) {
-            return new ArrayList<>(Config.CHALLENGES_TYPES.get().keySet());
+            return new ArrayList<>(Config.CATEGORIES.get().keySet());
         }
         return super.getTab(player, arg, args);
     }
@@ -51,10 +51,10 @@ public class ResetCommand extends AbstractCommand<ExcellentChallenges> {
         }
 
         String type = result.length() >= 3 ? result.getArg(2) : null;
-        ChallengeType cType = type != null ? plugin.getChallengeManager().getChallengeType(type) : null;
-        ChallengeType[] types = cType != null ? new ChallengeType[]{cType} : Config.CHALLENGES_TYPES.get().values().toArray(new ChallengeType[0]);
+        ChallengeCategory cType = type != null ? plugin.getChallengeManager().getChallengeType(type) : null;
+        ChallengeCategory[] types = cType != null ? new ChallengeCategory[]{cType} : Config.CATEGORIES.get().values().toArray(new ChallengeCategory[0]);
 
-        for (ChallengeType type2 : types) {
+        for (ChallengeCategory type2 : types) {
             user.getChallenges(type2).clear();
 
             plugin.getMessage(Lang.COMMAND_RESET_DONE)

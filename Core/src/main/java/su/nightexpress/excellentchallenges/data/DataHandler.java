@@ -2,23 +2,24 @@ package su.nightexpress.excellentchallenges.data;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import su.nightexpress.excellentchallenges.challenge.GeneratedChallenge;
+import su.nightexpress.excellentchallenges.data.object.ChallengeUser;
+import su.nightexpress.excellentchallenges.data.serialize.GenChallengeSerializer;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.data.AbstractUserDataHandler;
 import su.nexmedia.engine.api.data.sql.SQLColumn;
 import su.nexmedia.engine.api.data.sql.SQLValue;
 import su.nexmedia.engine.api.data.sql.column.ColumnType;
-import su.nightexpress.excellentchallenges.ExcellentChallenges;
-import su.nightexpress.excellentchallenges.challenge.Challenge;
-import su.nightexpress.excellentchallenges.challenge.type.ChallengeJobType;
-import su.nightexpress.excellentchallenges.data.object.ChallengeUser;
-import su.nightexpress.excellentchallenges.data.serialize.ChallengeSerializer;
+import su.nexmedia.engine.utils.values.UniInt;
+import su.nightexpress.excellentchallenges.ExcellentChallengesPlugin;
+import su.nightexpress.excellentchallenges.data.serialize.UniIntSerializer;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Function;
 
-public class DataHandler extends AbstractUserDataHandler<ExcellentChallenges, ChallengeUser> {
+public class DataHandler extends AbstractUserDataHandler<ExcellentChallengesPlugin, ChallengeUser> {
 
     private static final SQLColumn COL_CHALLENGES           = SQLColumn.of("challenges", ColumnType.STRING);
     private static final SQLColumn COL_REFRESH_TIMES        = SQLColumn.of("refreshTimes", ColumnType.STRING);
@@ -28,7 +29,7 @@ public class DataHandler extends AbstractUserDataHandler<ExcellentChallenges, Ch
     private static DataHandler                        instance;
     private final  Function<ResultSet, ChallengeUser> userFunction;
 
-    protected DataHandler(@NotNull ExcellentChallenges plugin) {
+    protected DataHandler(@NotNull ExcellentChallengesPlugin plugin) {
         super(plugin, plugin);
 
         this.userFunction = (resultSet) -> {
@@ -37,26 +38,28 @@ public class DataHandler extends AbstractUserDataHandler<ExcellentChallenges, Ch
                 String name = resultSet.getString(COLUMN_USER_NAME.getName());
                 long lastOnline = resultSet.getLong(COLUMN_USER_LAST_ONLINE.getName());
                 long dateCreated = resultSet.getLong(COLUMN_USER_DATE_CREATED.getName());
-                Map<String, Set<Challenge>> challenges = gson.fromJson(resultSet.getString(COL_CHALLENGES.getName()), new TypeToken<Map<String, Set<Challenge>>>() {
-                }.getType());
-                Map<String, Long> refreshTimes = gson.fromJson(resultSet.getString(COL_REFRESH_TIMES.getName()), new TypeToken<Map<String, Long>>() {
-                }.getType());
-                Map<String, Integer> rerollTokens = gson.fromJson(resultSet.getString(COL_REROLL_TOKENS.getName()), new TypeToken<Map<String, Integer>>() {
-                }.getType());
-                Map<String, Map<ChallengeJobType, Integer>> completedChallenges = gson.fromJson(resultSet.getString(COL_COMPLETED_CHALLENGES.getName()), new TypeToken<Map<String, Map<ChallengeJobType, Integer>>>() {
-                }.getType());
+
+                Map<String, Set<GeneratedChallenge>> challenges = gson.fromJson(resultSet.getString(COL_CHALLENGES.getName()), new TypeToken<Map<String, Set<GeneratedChallenge>>>(){}.getType());
+                challenges.values().removeIf(Objects::isNull);
+
+                Map<String, Long> refreshTimes = gson.fromJson(resultSet.getString(COL_REFRESH_TIMES.getName()), new TypeToken<Map<String, Long>>(){}.getType());
+
+                Map<String, Integer> rerollTokens = gson.fromJson(resultSet.getString(COL_REROLL_TOKENS.getName()), new TypeToken<Map<String, Integer>>(){}.getType());
+
+                Map<String, Map<String, Integer>> completedChallenges = gson.fromJson(resultSet.getString(COL_COMPLETED_CHALLENGES.getName()), new TypeToken<Map<String, Map<String, Integer>>>(){}.getType());
 
                 return new ChallengeUser(plugin, uuid, name, dateCreated, lastOnline,
                     challenges, refreshTimes, rerollTokens, completedChallenges);
             }
-            catch (SQLException e) {
+            catch (SQLException exception) {
+                exception.printStackTrace();
                 return null;
             }
         };
     }
 
     @NotNull
-    public static DataHandler getInstance(@NotNull ExcellentChallenges plugin) {
+    public static DataHandler getInstance(@NotNull ExcellentChallengesPlugin plugin) {
         if (instance == null) {
             instance = new DataHandler(plugin);
         }
@@ -93,7 +96,8 @@ public class DataHandler extends AbstractUserDataHandler<ExcellentChallenges, Ch
     @NotNull
     protected GsonBuilder registerAdapters(@NotNull GsonBuilder builder) {
         return super.registerAdapters(builder)
-            .registerTypeAdapter(Challenge.class, new ChallengeSerializer());
+            .registerTypeAdapter(UniInt.class, new UniIntSerializer())
+            .registerTypeAdapter(GeneratedChallenge.class, new GenChallengeSerializer());
     }
 
     @Override
@@ -112,28 +116,6 @@ public class DataHandler extends AbstractUserDataHandler<ExcellentChallenges, Ch
             COL_COMPLETED_CHALLENGES.toValue(this.gson.toJson(user.getCompletedChallengesMap()))
         );
     }
-
-    /*@Override
-    @NotNull
-    protected LinkedHashMap<String, String> getColumnsToCreate() {
-        LinkedHashMap<String, String> map = new LinkedHashMap<>();
-        map.put(COL_CHALLENGES, DataTypes.STRING.build(this.getDataType()));
-        map.put(COL_REFRESH_TIMES, DataTypes.STRING.build(this.getDataType()));
-        map.put(COL_REROLL_TOKENS, DataTypes.STRING.build(this.getDataType()));
-        map.put(COL_COMPLETED_CHALLENGES, DataTypes.STRING.build(this.getDataType()));
-        return map;
-    }
-
-    @Override
-    @NotNull
-    protected LinkedHashMap<String, String> getColumnsToSave(@NotNull ChallengeUser user) {
-        LinkedHashMap<String, String> map = new LinkedHashMap<>();
-        map.put(COL_CHALLENGES, this.gson.toJson(user.getChallengesMap()));
-        map.put(COL_REFRESH_TIMES, this.gson.toJson(user.getRefreshTimes()));
-        map.put(COL_REROLL_TOKENS, this.gson.toJson(user.getRerollTokens()));
-        map.put(COL_COMPLETED_CHALLENGES, this.gson.toJson(user.getCompletedChallengesMap()));
-        return map;
-    }*/
 
     @Override
     @NotNull

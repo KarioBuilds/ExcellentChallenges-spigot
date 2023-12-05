@@ -11,7 +11,7 @@ import su.nexmedia.engine.utils.Reflex;
 
 import java.lang.reflect.Method;
 
-public class V1_18_R2 extends ChallengeNMS {
+public class V1_18_R2 implements ChallengeNMS {
 
     private static final Method BREWING_A = Reflex.getMethod(TileEntityBrewingStand.class, "a", NonNullList.class);
 

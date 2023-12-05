@@ -1,15 +1,15 @@
 package su.nightexpress.excellentchallenges.data;
 
+import su.nightexpress.excellentchallenges.data.object.ChallengeUser;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.data.AbstractUserManager;
-import su.nightexpress.excellentchallenges.ExcellentChallenges;
-import su.nightexpress.excellentchallenges.data.object.ChallengeUser;
+import su.nightexpress.excellentchallenges.ExcellentChallengesPlugin;
 
 import java.util.UUID;
 
-public class UserManager extends AbstractUserManager<ExcellentChallenges, ChallengeUser> {
+public class UserManager extends AbstractUserManager<ExcellentChallengesPlugin, ChallengeUser> {
 
-    public UserManager(@NotNull ExcellentChallenges plugin) {
+    public UserManager(@NotNull ExcellentChallengesPlugin plugin) {
         super(plugin, plugin);
     }
 

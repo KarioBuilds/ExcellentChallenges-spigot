@@ -4,23 +4,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>su.nightexpress.excellentchallenges</groupId>
+    <groupId>su.nightexpress.challengesrenewed</groupId>
     <artifactId>ExcellentChallenges</artifactId>
     <packaging>pom</packaging>
-    <version>2.0.11</version>
+    <version>3.0.1</version>
     <modules>
         <module>Core</module>
         <module>NMS</module>
-        <module>V1_17_R1</module>
         <module>V1_18_R2</module>
         <module>V1_19_R3</module>
-        <module>V1_20_R1</module>
         <module>V1_20_R2</module>
     </modules>
 
     <properties>
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <repositories>

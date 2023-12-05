@@ -1,22 +1,22 @@
 package su.nightexpress.excellentchallenges.data.object;
 
+import su.nightexpress.excellentchallenges.challenge.ChallengeCategory;
+import su.nightexpress.excellentchallenges.challenge.GeneratedChallenge;
+import su.nightexpress.excellentchallenges.challenge.action.ActionType;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.api.data.AbstractUser;
-import su.nightexpress.excellentchallenges.ExcellentChallenges;
-import su.nightexpress.excellentchallenges.challenge.Challenge;
-import su.nightexpress.excellentchallenges.challenge.ChallengeType;
-import su.nightexpress.excellentchallenges.challenge.type.ChallengeJobType;
+import su.nightexpress.excellentchallenges.ExcellentChallengesPlugin;
 
 import java.util.*;
 
-public class ChallengeUser extends AbstractUser<ExcellentChallenges> {
+public class ChallengeUser extends AbstractUser<ExcellentChallengesPlugin> {
 
-    private final Map<String, Set<Challenge>>                 challenges;
-    private final Map<String, Long>                           refreshTimes;
+    private final Map<String, Set<GeneratedChallenge>> challenges;
+    private final Map<String, Long>                    refreshTimes;
     private final Map<String, Integer>                        rerollTokens;
-    private final Map<String, Map<ChallengeJobType, Integer>> completedChallenges;
+    private final Map<String, Map<String, Integer>> completedChallenges;
 
-    public ChallengeUser(@NotNull ExcellentChallenges plugin, @NotNull UUID uuid, @NotNull String name) {
+    public ChallengeUser(@NotNull ExcellentChallengesPlugin plugin, @NotNull UUID uuid, @NotNull String name) {
         this(plugin, uuid, name, System.currentTimeMillis(), System.currentTimeMillis(),
             new HashMap<>(),
             new HashMap<>(),
@@ -25,12 +25,12 @@ public class ChallengeUser extends AbstractUser<ExcellentChallenges> {
         );
     }
 
-    public ChallengeUser(@NotNull ExcellentChallenges plugin, @NotNull UUID uuid, @NotNull String name,
+    public ChallengeUser(@NotNull ExcellentChallengesPlugin plugin, @NotNull UUID uuid, @NotNull String name,
                          long dateCreated, long lastOnline,
-                         @NotNull Map<String, Set<Challenge>> challenges,
+                         @NotNull Map<String, Set<GeneratedChallenge>> challenges,
                          @NotNull Map<String, Long> refreshTimes,
                          @NotNull Map<String, Integer> rerollTokens,
-                         @NotNull Map<String, Map<ChallengeJobType, Integer>> completedChallenges
+                         @NotNull Map<String, Map<String, Integer>> completedChallenges
     ) {
         super(plugin, uuid, name, dateCreated, lastOnline);
         this.challenges = new HashMap<>(challenges);
@@ -42,17 +42,17 @@ public class ChallengeUser extends AbstractUser<ExcellentChallenges> {
     }
 
     @NotNull
-    public Map<String, Set<Challenge>> getChallengesMap() {
+    public Map<String, Set<GeneratedChallenge>> getChallengesMap() {
         return challenges;
     }
 
     @NotNull
-    public Set<Challenge> getChallenges(@NotNull ChallengeType type) {
+    public Set<GeneratedChallenge> getChallenges(@NotNull ChallengeCategory type) {
         return this.getChallenges(type.getId());
     }
 
     @NotNull
-    public Set<Challenge> getChallenges(@NotNull String id) {
+    public Set<GeneratedChallenge> getChallenges(@NotNull String id) {
         return this.getChallengesMap().computeIfAbsent(id, k -> new HashSet<>());
     }
 
@@ -61,34 +61,35 @@ public class ChallengeUser extends AbstractUser<ExcellentChallenges> {
         return refreshTimes;
     }
 
-    public long getRefreshTime(@NotNull ChallengeType type) {
+    public long getRefreshTime(@NotNull ChallengeCategory type) {
         return this.getRefreshTimes().getOrDefault(type.getId(), 0L);
     }
 
-    public void updateRefreshTime(@NotNull ChallengeType type) {
+    public void updateRefreshTime(@NotNull ChallengeCategory type) {
         this.getRefreshTimes().put(type.getId(), System.currentTimeMillis() + type.getRefreshTime() * 1000L);
     }
 
-    public boolean hasChallenges(@NotNull ChallengeType type) {
+    public boolean hasChallenges(@NotNull ChallengeCategory type) {
         return !this.getChallenges(type).isEmpty();
     }
 
-    public boolean isTimeForNewChallenges(@NotNull ChallengeType type) {
+    public boolean isTimeForNewChallenges(@NotNull ChallengeCategory type) {
         long deadline = this.getRefreshTime(type);
         return System.currentTimeMillis() > deadline;// && this.getChallenges(type).stream().allMatch(chal -> chal.getDateCreated() < deadline);
     }
 
-    public double getProgressPercent(@NotNull ChallengeType type) {
+    public double getProgressPercent(@NotNull ChallengeCategory type) {
         double size = this.getChallenges(type).size();
-        double sum = this.getChallenges(type).stream().map(Challenge::getProgressPercent).mapToDouble(d -> d).sum();
+        double sum = this.getChallenges(type).stream().map(GeneratedChallenge::getCompletionPercent).mapToDouble(d -> d).sum();
         return sum / (size == 0D ? 1D : size);
     }
 
+    @Deprecated
     public void removeInvalidChallenges() {
         this.getChallengesMap().values().forEach(challenges -> {
             challenges.removeIf(challenge -> {
-                if (plugin.getChallengeManager().getTemplate(challenge.getTemplateId()) == null) return true;
-                if (plugin.getChallengeManager().getGenerator(challenge.getGeneratorId()) == null) return true;
+                //if (plugin.getChallengeManager().getTemplate(challenge.getTemplateId()) == null) return true;
+                //if (plugin.getChallengeManager().getGenerator(challenge.getGeneratorId()) == null) return true;
                 return false;
             });
         });
@@ -99,7 +100,7 @@ public class ChallengeUser extends AbstractUser<ExcellentChallenges> {
         return rerollTokens;
     }
 
-    public int getRerollTokens(@NotNull ChallengeType type) {
+    public int getRerollTokens(@NotNull ChallengeCategory type) {
         return this.getRerollTokens(type.getId());
     }
 
@@ -107,7 +108,7 @@ public class ChallengeUser extends AbstractUser<ExcellentChallenges> {
         return this.getRerollTokens().getOrDefault(id.toLowerCase(), 0);
     }
 
-    public void setRerollTokens(@NotNull ChallengeType type, int amount) {
+    public void setRerollTokens(@NotNull ChallengeCategory type, int amount) {
         this.setRerollTokens(type.getId(), amount);
     }
 
@@ -115,7 +116,7 @@ public class ChallengeUser extends AbstractUser<ExcellentChallenges> {
         this.getRerollTokens().put(id.toLowerCase(), Math.max(0, amount));
     }
 
-    public void addRerollTokens(@NotNull ChallengeType type, int amount) {
+    public void addRerollTokens(@NotNull ChallengeCategory type, int amount) {
         this.addRerollTokens(type.getId(), amount);
     }
 
@@ -123,7 +124,7 @@ public class ChallengeUser extends AbstractUser<ExcellentChallenges> {
         this.setRerollTokens(id, this.getRerollTokens(id) + amount);
     }
 
-    public void takeRerollTokens(@NotNull ChallengeType type, int amount) {
+    public void takeRerollTokens(@NotNull ChallengeCategory type, int amount) {
         this.takeRerollTokens(type.getId(), amount);
     }
 
@@ -132,24 +133,29 @@ public class ChallengeUser extends AbstractUser<ExcellentChallenges> {
     }
 
     @NotNull
-    public Map<String, Map<ChallengeJobType, Integer>> getCompletedChallengesMap() {
+    public Map<String, Map<String, Integer>> getCompletedChallengesMap() {
         return completedChallenges;
     }
 
+    /*@NotNull
+    public Map<String, Integer> getCompletedChallenges(@NotNull ChallengeActionType<?, ?> type) {
+        return this.getCompletedChallenges(type.getName());
+    }*/
+
     @NotNull
-    public Map<ChallengeJobType, Integer> getCompletedChallenges(@NotNull String id) {
+    public Map<String, Integer> getCompletedChallenges(@NotNull String id) {
         return this.getCompletedChallengesMap().getOrDefault(id.toLowerCase(), new HashMap<>());
     }
 
-    public void addCompletedChallenge(@NotNull Challenge challenge) {
-        Map<ChallengeJobType, Integer> completed = this.getCompletedChallenges(challenge.getTypeId());
-        int amount = completed.getOrDefault(challenge.getJobType(), 0);
-        completed.put(challenge.getJobType(), amount + 1);
-        this.getCompletedChallengesMap().put(challenge.getTypeId(), completed);
+    public void addCompletedChallenge(@NotNull GeneratedChallenge challenge) {
+        Map<String, Integer> completed = this.getCompletedChallenges(challenge.getType().getId());
+        int amount = completed.getOrDefault(challenge.getActionType().getName(), 0);
+        completed.put(challenge.getActionType().getName(), amount + 1);
+        this.getCompletedChallengesMap().put(challenge.getType().getId(), completed);
     }
 
-    public boolean isAllChallengesCompleted(@NotNull ChallengeType type) {
-        return this.getChallenges(type).stream().allMatch(Challenge::isCompleted);
+    public boolean isAllChallengesCompleted(@NotNull ChallengeCategory type) {
+        return this.getChallenges(type).stream().allMatch(GeneratedChallenge::isCompleted);
     }
 
     public int getCompletedChallengesAmount() {
@@ -157,7 +163,7 @@ public class ChallengeUser extends AbstractUser<ExcellentChallenges> {
             .mapToInt(i -> i).sum();
     }
 
-    public int getCompletedChallengesAmount(@NotNull ChallengeType type) {
+    public int getCompletedChallengesAmount(@NotNull ChallengeCategory type) {
         return this.getCompletedChallengesAmount(type.getId());
     }
 
@@ -165,9 +171,9 @@ public class ChallengeUser extends AbstractUser<ExcellentChallenges> {
         return this.getCompletedChallenges(id).values().stream().mapToInt(i -> i).sum();
     }
 
-    public int getCompletedChallengesAmount(@NotNull ChallengeJobType jobType) {
+    public int getCompletedChallengesAmount(@NotNull ActionType<?, ?> jobType) {
         return this.getCompletedChallengesMap().values().stream()
-            .mapToInt(map -> map.entrySet().stream().filter(entry -> entry.getKey() == jobType).mapToInt(Map.Entry::getValue).sum())
+            .mapToInt(map -> map.entrySet().stream().filter(entry -> entry.getKey().equalsIgnoreCase(jobType.getName())).mapToInt(Map.Entry::getValue).sum())
             .sum();
     }
 }

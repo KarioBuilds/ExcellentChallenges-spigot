@@ -1,5 +1,6 @@
 package su.nightexpress.excellentchallenges.command;
 
+import su.nightexpress.excellentchallenges.config.Config;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
@@ -10,11 +11,10 @@ import su.nexmedia.engine.api.command.GeneralCommand;
 import su.nexmedia.engine.api.lang.LangMessage;
 import su.nexmedia.engine.command.list.HelpSubCommand;
 import su.nexmedia.engine.utils.CollectionsUtil;
-import su.nightexpress.excellentchallenges.ExcellentChallenges;
+import su.nightexpress.excellentchallenges.ExcellentChallengesPlugin;
 import su.nightexpress.excellentchallenges.Perms;
 import su.nightexpress.excellentchallenges.Placeholders;
-import su.nightexpress.excellentchallenges.challenge.ChallengeType;
-import su.nightexpress.excellentchallenges.config.Config;
+import su.nightexpress.excellentchallenges.challenge.ChallengeCategory;
 import su.nightexpress.excellentchallenges.config.Lang;
 import su.nightexpress.excellentchallenges.data.object.ChallengeUser;
 
@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class RerollTokensCommand extends GeneralCommand<ExcellentChallenges> {
+public class RerollTokensCommand extends GeneralCommand<ExcellentChallengesPlugin> {
 
-    public RerollTokensCommand(@NotNull ExcellentChallenges plugin) {
+    public RerollTokensCommand(@NotNull ExcellentChallengesPlugin plugin) {
         super(plugin, new String[]{"rerolltokens", "retok"}, Perms.COMMAND_REROLL_TOKENS);
         this.setDescription(plugin.getMessage(Lang.COMMAND_REROLL_TOKENS_DESC));
         this.setUsage(plugin.getMessage(Lang.COMMAND_REROLL_TOKENS_USAGE));
@@ -44,11 +44,11 @@ public class RerollTokensCommand extends GeneralCommand<ExcellentChallenges> {
         GIVE, TAKE, SET
     }
 
-    static class SubCommand extends AbstractCommand<ExcellentChallenges> {
+    static class SubCommand extends AbstractCommand<ExcellentChallengesPlugin> {
 
         private final Mode mode;
 
-        public SubCommand(@NotNull ExcellentChallenges plugin, @NotNull Mode mode, @NotNull String[] aliases, @NotNull Permission permission) {
+        public SubCommand(@NotNull ExcellentChallengesPlugin plugin, @NotNull Mode mode, @NotNull String[] aliases, @NotNull Permission permission) {
             super(plugin, aliases, permission);
             this.mode = mode;
         }
@@ -81,7 +81,7 @@ public class RerollTokensCommand extends GeneralCommand<ExcellentChallenges> {
                 return CollectionsUtil.playerNames(player);
             }
             if (arg == 3) {
-                return new ArrayList<>(Config.CHALLENGES_TYPES.get().keySet());
+                return new ArrayList<>(Config.CATEGORIES.get().keySet());
             }
             if (arg == 4) {
                 return Arrays.asList("0", "1", "5", "25", "100");
@@ -102,8 +102,8 @@ public class RerollTokensCommand extends GeneralCommand<ExcellentChallenges> {
                 return;
             }
 
-            ChallengeType challengeType = plugin.getChallengeManager().getChallengeType(result.getArg(3));
-            if (challengeType == null) {
+            ChallengeCategory challengeCategory = plugin.getChallengeManager().getChallengeType(result.getArg(3));
+            if (challengeCategory == null) {
 
                 return;
             }
@@ -116,15 +116,15 @@ public class RerollTokensCommand extends GeneralCommand<ExcellentChallenges> {
 
             LangMessage message = switch (this.mode) {
                 case GIVE -> {
-                    user.addRerollTokens(challengeType, amount);
+                    user.addRerollTokens(challengeCategory, amount);
                     yield plugin.getMessage(Lang.COMMAND_REROLL_TOKENS_GIVE_DONE);
                 }
                 case TAKE -> {
-                    user.takeRerollTokens(challengeType, amount);
+                    user.takeRerollTokens(challengeCategory, amount);
                     yield plugin.getMessage(Lang.COMMAND_REROLL_TOKENS_TAKE_DONE);
                 }
                 case SET -> {
-                    user.setRerollTokens(challengeType, amount);
+                    user.setRerollTokens(challengeCategory, amount);
                     yield plugin.getMessage(Lang.COMMAND_REROLL_TOKENS_SET_DONE);
                 }
             };
@@ -133,7 +133,7 @@ public class RerollTokensCommand extends GeneralCommand<ExcellentChallenges> {
             message
                 .replace(Placeholders.PLAYER_NAME, user.getName())
                 .replace(Placeholders.GENERIC_AMOUNT, String.valueOf(amount))
-                .replace(Placeholders.GENERIC_TYPE, challengeType.getName())
+                .replace(Placeholders.GENERIC_TYPE, challengeCategory.getName())
                 .send(sender);
         }
     }

@@ -1,9 +1,9 @@
 package su.nightexpress.excellentchallenges.nms;
 
-import net.minecraft.core.BlockPosition;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.world.level.block.entity.TileEntity;
-import net.minecraft.world.level.block.entity.TileEntityBrewingStand;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
 import org.jetbrains.annotations.NotNull;
@@ -11,16 +11,16 @@ import su.nexmedia.engine.utils.Reflex;
 
 import java.lang.reflect.Method;
 
-public class V1_20_R2 extends ChallengeNMS {
+public class V1_20_R2 implements ChallengeNMS {
 
-    private static final Method BREWING_A = Reflex.getMethod(TileEntityBrewingStand.class, "a", NonNullList.class);
+    private static final Method BREWING_A = Reflex.getMethod(BrewingStandBlockEntity.class, "a", NonNullList.class);
 
     @Override
     public boolean canBrew(@NotNull BrewingStand stand) {
         if (BREWING_A == null) return true;
 
         CraftWorld craftWorld = (CraftWorld) stand.getWorld();
-        TileEntity tile = craftWorld.getHandle().getBlockEntity(new BlockPosition(stand.getX(), stand.getY(), stand.getZ()), true);
+        BlockEntity tile = craftWorld.getHandle().getBlockEntity(new BlockPos(stand.getX(), stand.getY(), stand.getZ()));
         if (tile == null) return false;
 
         //if (!(tile instanceof TileEntityBrewingStand)) return false;

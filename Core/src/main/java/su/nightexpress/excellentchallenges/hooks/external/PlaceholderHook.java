@@ -1,23 +1,23 @@
 package su.nightexpress.excellentchallenges.hooks.external;
 
+import su.nightexpress.excellentchallenges.challenge.ChallengeCategory;
+import su.nightexpress.excellentchallenges.challenge.action.ActionType;
+import su.nightexpress.excellentchallenges.data.object.ChallengeUser;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import su.nexmedia.engine.utils.NumberUtil;
-import su.nexmedia.engine.utils.StringUtil;
-import su.nightexpress.excellentchallenges.ExcellentChallenges;
+import su.nightexpress.excellentchallenges.ExcellentChallengesPlugin;
 import su.nightexpress.excellentchallenges.ExcellentChallengesAPI;
-import su.nightexpress.excellentchallenges.challenge.ChallengeType;
-import su.nightexpress.excellentchallenges.challenge.type.ChallengeJobType;
-import su.nightexpress.excellentchallenges.data.object.ChallengeUser;
 
 public class PlaceholderHook {
 
     private static Expansion expansion;
 
-    public static void setup() {
+    public static void setup(@NotNull ExcellentChallengesPlugin plugin) {
         if (expansion == null) {
-            (expansion = new Expansion()).register();
+            expansion = new Expansion(plugin);
+            expansion.register();
         }
     }
 
@@ -28,36 +28,46 @@ public class PlaceholderHook {
         }
     }
 
-    static class Expansion extends PlaceholderExpansion {
+    private static class Expansion extends PlaceholderExpansion {
+
+        private final ExcellentChallengesPlugin plugin;
+
+        public Expansion(@NotNull ExcellentChallengesPlugin plugin) {
+            this.plugin = plugin;
+        }
 
         @Override
         @NotNull
         public String getAuthor() {
-            return ExcellentChallengesAPI.PLUGIN.getDescription().getAuthors().get(0);
+            return plugin.getDescription().getAuthors().get(0);
         }
 
         @Override
         @NotNull
         public String getIdentifier() {
-            return ExcellentChallengesAPI.PLUGIN.getDescription().getName().toLowerCase();
+            return plugin.getDescription().getName().toLowerCase();
         }
 
         @Override
         @NotNull
         public String getVersion() {
-            return ExcellentChallengesAPI.PLUGIN.getDescription().getVersion();
+            return plugin.getDescription().getVersion();
+        }
+
+        @Override
+        public boolean persist() {
+            return true;
         }
 
         @Override
         public String onPlaceholderRequest(Player player, @NotNull String params) {
             if (player == null) return null;
 
-            ExcellentChallenges plugin = ExcellentChallengesAPI.PLUGIN;
             ChallengeUser user = plugin.getUserManager().getUserData(player);
 
             if (params.startsWith("progress_")) {
                 String type = params.replace("progress_", "");
-                ChallengeType cType = plugin.getChallengeManager().getChallengeType(type);
+                ChallengeCategory cType = plugin.getChallengeManager().getChallengeType(type);
                 if (cType == null) return null;
 
 
@@ -66,7 +76,7 @@ public class PlaceholderHook {
 
             if (params.startsWith("reroll_tokens_")) {
                 String type = params.substring("reroll_tokens_".length());
-                ChallengeType cType = plugin.getChallengeManager().getChallengeType(type);
+                ChallengeCategory cType = plugin.getChallengeManager().getChallengeType(type);
                 if (cType == null) return null;
 
                 return NumberUtil.format(user.getRerollTokens(cType));
@@ -78,14 +88,14 @@ public class PlaceholderHook {
                     return NumberUtil.format(user.getCompletedChallengesAmount());
                 }
 
-                ChallengeType cType = plugin.getChallengeManager().getChallengeType(type);
-                if (cType != null) {
-                    return NumberUtil.format(user.getCompletedChallengesAmount(cType));
+                ChallengeCategory category = plugin.getChallengeManager().getChallengeType(type);
+                if (category != null) {
+                    return NumberUtil.format(user.getCompletedChallengesAmount(category));
                 }
 
-                ChallengeJobType jobType = StringUtil.getEnum(type, ChallengeJobType.class).orElse(null);
-                if (jobType != null) {
-                    return NumberUtil.format(user.getCompletedChallengesAmount(jobType));
+                ActionType<?, ?> actionType = plugin.getActionRegistry().getActionType(type);
+                if (actionType != null) {
+                    return NumberUtil.format(user.getCompletedChallengesAmount(actionType));
                 }
             }
 

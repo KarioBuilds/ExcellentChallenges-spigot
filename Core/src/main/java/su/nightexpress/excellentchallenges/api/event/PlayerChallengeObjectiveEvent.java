@@ -1,10 +1,10 @@
 package su.nightexpress.excellentchallenges.api.event;
 
+import su.nightexpress.excellentchallenges.challenge.GeneratedChallenge;
+import su.nightexpress.excellentchallenges.data.object.ChallengeUser;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.excellentchallenges.challenge.Challenge;
-import su.nightexpress.excellentchallenges.data.object.ChallengeUser;
 
 public class PlayerChallengeObjectiveEvent extends PlayerChallengeEvent {
 
@@ -14,7 +14,7 @@ public class PlayerChallengeObjectiveEvent extends PlayerChallengeEvent {
     protected final int amount;
 
     public PlayerChallengeObjectiveEvent(
-        @NotNull Player player, @NotNull ChallengeUser user, @NotNull Challenge progress,
+        @NotNull Player player, @NotNull ChallengeUser user, @NotNull GeneratedChallenge progress,
         @NotNull String objective, int amount) {
         super(player, user, progress);
 

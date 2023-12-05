@@ -1,18 +1,18 @@
 package su.nightexpress.excellentchallenges.api.event;
 
+import su.nightexpress.excellentchallenges.challenge.GeneratedChallenge;
+import su.nightexpress.excellentchallenges.data.object.ChallengeUser;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
-import su.nightexpress.excellentchallenges.challenge.Challenge;
-import su.nightexpress.excellentchallenges.data.object.ChallengeUser;
 
 public abstract class PlayerChallengeEvent extends Event {
 
-    protected final Player        player;
-    protected final ChallengeUser user;
-    protected final Challenge     challenge;
+    protected final Player             player;
+    protected final ChallengeUser      user;
+    protected final GeneratedChallenge challenge;
 
-    public PlayerChallengeEvent(@NotNull Player player, @NotNull ChallengeUser user, @NotNull Challenge challenge) {
+    public PlayerChallengeEvent(@NotNull Player player, @NotNull ChallengeUser user, @NotNull GeneratedChallenge challenge) {
         this.player = player;
         this.user = user;
         this.challenge = challenge;
@@ -29,7 +29,7 @@ public abstract class PlayerChallengeEvent extends Event {
     }
 
     @NotNull
-    public Challenge getChallenge() {
+    public GeneratedChallenge getChallenge() {
         return challenge;
     }
 }
