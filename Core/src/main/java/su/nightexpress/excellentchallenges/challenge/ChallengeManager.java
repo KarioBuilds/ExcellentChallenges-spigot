@@ -252,6 +252,10 @@ public class ChallengeManager extends AbstractManager<ExcellentChallengesPlugin>
             Difficulty difficulty = Rnd.getByWeight(difficultyMap);
 
             generators.remove(generator);
+            if (!generator.hasObjectives(difficulty)) {
+                //this.plugin.warn("Generator " + generator.getId() + " has no objectives for " + difficulty.getId() + " difficulty.");
+                continue;
+            }
             if (category.isUniqueTypes()) generators.removeIf(g -> g.getType() == generator.getType());
 
             try {

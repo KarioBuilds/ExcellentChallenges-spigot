@@ -6,19 +6,21 @@ import su.nexmedia.engine.utils.random.Rnd;
 import su.nightexpress.excellentchallenges.challenge.difficulty.Difficulty;
 import su.nightexpress.excellentchallenges.challenge.difficulty.DifficultyValue;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class GenAmountObject extends GenObject {
 
     private final DifficultyValue amount;
 
+    private boolean allowDuplicateSelection;
+
     public GenAmountObject(@NotNull String id, double weight,
                            @NotNull Map<String, Set<String>> items,
-                           @NotNull DifficultyValue amount) {
+                           @NotNull DifficultyValue amount,
+                           boolean allowDuplicateSelection) {
         super(id, weight, items);
         this.amount = amount;
+        this.setAllowDuplicateSelection(false);
     }
 
     @NotNull
@@ -31,7 +33,7 @@ public class GenAmountObject extends GenObject {
 
         DifficultyValue amount = DifficultyValue.read(cfg, path + ".Amount");
 
-        return new GenAmountObject(id, parent.getWeight(), parent.getItems(), amount);
+        return new GenAmountObject(id, parent.getWeight(), parent.getItems(), amount, false);
     }
 
     @Override
@@ -39,12 +41,13 @@ public class GenAmountObject extends GenObject {
         super.write(cfg, path);
 
         this.getAmount().write(cfg, path + ".Amount");
+        //cfg.set(path + ".Allow_Duplicates", this.isAllowDuplicateSelection());
     }
 
     @NotNull
-    public Set<String> pickItems(@NotNull Difficulty difficulty, int level) {
+    public Collection<String> pickItems(@NotNull Difficulty difficulty, int level) {
         Set<String> originItems = new HashSet<>(this.getItems(difficulty));
-        Set<String> items = new HashSet<>();
+        List<String> items = new ArrayList<>();
 
         int amount = this.getAmount().createValue(difficulty, level);
         if (amount <= 0) return items;
@@ -54,7 +57,9 @@ public class GenAmountObject extends GenObject {
 
             items.add(item);
             amount--;
-            originItems.remove(item);
+            if (!this.isAllowDuplicateSelection()) {
+                originItems.remove(item);
+            }
         }
 
         return items;
@@ -63,5 +68,13 @@ public class GenAmountObject extends GenObject {
     @NotNull
     public DifficultyValue getAmount() {
         return amount;
+    }
+
+    public void setAllowDuplicateSelection(boolean allowDuplicateSelection) {
+        this.allowDuplicateSelection = allowDuplicateSelection;
+    }
+
+    public boolean isAllowDuplicateSelection() {
+        return allowDuplicateSelection;
     }
 }

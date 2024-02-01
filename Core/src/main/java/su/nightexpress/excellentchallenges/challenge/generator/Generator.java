@@ -1,5 +1,6 @@
 package su.nightexpress.excellentchallenges.challenge.generator;
 
+import su.nexmedia.engine.api.config.JOption;
 import su.nightexpress.excellentchallenges.Placeholders;
 import su.nightexpress.excellentchallenges.challenge.GeneratedChallenge;
 import su.nightexpress.excellentchallenges.challenge.condition.ConditionConfig;
@@ -38,7 +39,13 @@ public class Generator extends AbstractConfigHolder<ExcellentChallengesPlugin> {
     public boolean load() {
         String typeName = cfg.getString("Type");
         this.type = typeName == null ? null : plugin.getActionRegistry().getActionType(typeName);
-        if (this.type == null) throw new IllegalStateException("Invalid challenge type: '" + typeName + "' in generator '" + this.getId() + "'.");
+        if (this.type == null) {
+            //this.plugin.warn("Invalid challenge type: '" + typeName + "' in generator '" + this.getId() + "'.");
+            return false;
+        }
+
+        boolean allowDuplicatedRewards = JOption.create("Rewards.Allow_Duplicates", false,
+            "Sets whether or not duplicated rewards are allowed to be picked on generation.").read(cfg);
 
         for (String sId : cfg.getSection("Objectives.List")) {
             GenObjectiveObject object = GenObjectiveObject.read(cfg, "Objectives.List." + sId, sId);
@@ -52,6 +59,7 @@ public class Generator extends AbstractConfigHolder<ExcellentChallengesPlugin> {
 
         for (String sId : cfg.getSection("Rewards.List")) {
             GenAmountObject object = GenAmountObject.read(cfg, "Rewards.List." + sId, sId);
+            object.setAllowDuplicateSelection(allowDuplicatedRewards);
             this.getRewardList().add(object);
         }
 
@@ -101,6 +109,11 @@ public class Generator extends AbstractConfigHolder<ExcellentChallengesPlugin> {
         });
     }
 
+    public boolean hasObjectives(@NotNull Difficulty difficulty) {
+        GenObjectiveObject objectivesHolder = this.getObjectiveList().pickObject(difficulty);
+        return objectivesHolder != null;
+    }
+
     @NotNull
     public GeneratedChallenge generate(@NotNull ChallengeCategory challengeCategory, @NotNull Difficulty difficulty) {
         int level = difficulty.createLevel();
@@ -108,7 +121,7 @@ public class Generator extends AbstractConfigHolder<ExcellentChallengesPlugin> {
 
         Map<String, UniInt> objectiveMap = new HashMap<>();
         Set<String> conditionIds = new HashSet<>();
-        Set<String> rewardIds = new HashSet<>();
+        List<String> rewardIds = new ArrayList<>();
 
         GenObjectiveObject objectivesHolder = this.getObjectiveList().pickObject(difficulty);
         if (objectivesHolder == null) throw new NoSuchElementException("Could not pick objective!");
@@ -120,7 +133,7 @@ public class Generator extends AbstractConfigHolder<ExcellentChallengesPlugin> {
                 continue;
             }
 
-            objectiveMap.put(objectName, UniInt.of(0, progress));
+            objectiveMap.put(objectName.toLowerCase(), UniInt.of(0, progress));
         }
         if (objectiveMap.isEmpty()) {
             throw new IllegalStateException("No objectives generated!");

@@ -165,6 +165,7 @@ public class ItemMaterialCreator extends AbstractCreator<Material> {
             .filter(material -> Stream.of(EnchantmentTarget.values()).anyMatch(t -> t.includes(material)))
             .filter(material -> material != Material.CARROT_ON_A_STICK && material != Material.WARPED_FUNGUS_ON_A_STICK)
             .filter(material -> material != Material.SHIELD)
+            .filter(material -> material != Material.CARVED_PUMPKIN && material != Material.PUMPKIN)
             .filter(material -> !material.name().endsWith("_HEAD"))
             .collect(Collectors.toSet());
 

@@ -84,14 +84,11 @@ public class ChallengeUser extends AbstractUser<ExcellentChallengesPlugin> {
         return sum / (size == 0D ? 1D : size);
     }
 
-    @Deprecated
     public void removeInvalidChallenges() {
         this.getChallengesMap().values().forEach(challenges -> {
-            challenges.removeIf(challenge -> {
-                //if (plugin.getChallengeManager().getTemplate(challenge.getTemplateId()) == null) return true;
-                //if (plugin.getChallengeManager().getGenerator(challenge.getGeneratorId()) == null) return true;
-                return false;
-            });
+            //if (plugin.getChallengeManager().getTemplate(challenge.getTemplateId()) == null) return true;
+            //if (plugin.getChallengeManager().getGenerator(challenge.getGeneratorId()) == null) return true;
+            challenges.removeIf(Objects::isNull);
         });
     }
 

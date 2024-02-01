@@ -22,6 +22,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.bukkit.projectiles.ProjectileSource;
+import su.nexmedia.engine.Version;
 import su.nexmedia.engine.utils.*;
 import su.nexmedia.engine.utils.blocktracker.PlayerBlockTracker;
 import su.nightexpress.excellentchallenges.Keys;
@@ -115,6 +116,8 @@ public class EventHelpers {
     public static final EventHelper<BlockFertilizeEvent, Material> BLOCK_FERTILIZE = (plugin, event, processor) -> {
         Player player = event.getPlayer();
         if (player == null) return false;
+
+        processor.progressChallenge(player, event.getBlock().getType(), 1);
 
         event.getBlocks().forEach(blockState -> {
             processor.progressChallenge(player, blockState.getType(), 1);
@@ -347,10 +350,19 @@ public class EventHelpers {
                 ItemMeta meta = item.getItemMeta();
                 if (!(meta instanceof PotionMeta potionMeta)) continue;
 
-                PotionType potionType = potionMeta.getBasePotionType();
-                for (PotionEffect effect : potionType.getPotionEffects()) {
-                    processor.progressChallenge(player, effect.getType(), item.getAmount());
+                PotionType potionType;
+                if (Version.isAtLeast(Version.V1_20_R2)) {
+                    for (PotionEffect effect : potionMeta.getBasePotionType().getPotionEffects()) {
+                        processor.progressChallenge(player, effect.getType(), item.getAmount());
+                    }
                 }
+                else {
+                    potionType = potionMeta.getBasePotionData().getType();
+                    if (potionType.getEffectType() != null) {
+                        processor.progressChallenge(player, potionType.getEffectType(), item.getAmount());
+                    }
+                }
+
                 potionMeta.getCustomEffects().forEach(effect -> {
                     processor.progressChallenge(player, effect.getType(), item.getAmount());
                 });

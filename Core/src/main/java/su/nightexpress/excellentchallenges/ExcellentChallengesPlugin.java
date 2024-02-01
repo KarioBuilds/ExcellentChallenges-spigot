@@ -21,10 +21,7 @@ import su.nightexpress.excellentchallenges.data.DataHandler;
 import su.nightexpress.excellentchallenges.data.UserManager;
 import su.nightexpress.excellentchallenges.data.object.ChallengeUser;
 import su.nightexpress.excellentchallenges.hooks.external.PlaceholderHook;
-import su.nightexpress.excellentchallenges.nms.ChallengeNMS;
-import su.nightexpress.excellentchallenges.nms.V1_18_R2;
-import su.nightexpress.excellentchallenges.nms.V1_19_R3;
-import su.nightexpress.excellentchallenges.nms.V1_20_R2;
+import su.nightexpress.excellentchallenges.nms.*;
 
 public class ExcellentChallengesPlugin extends NexPlugin<ExcellentChallengesPlugin> implements UserDataHolder<ExcellentChallengesPlugin, ChallengeUser> {
 
@@ -77,7 +74,9 @@ public class ExcellentChallengesPlugin extends NexPlugin<ExcellentChallengesPlug
         this.challengeNMS = switch (Version.getCurrent()) {
             case V1_18_R2 -> new V1_18_R2();
             case V1_19_R3 -> new V1_19_R3();
+            case V1_20_R1 -> new V1_20_R1();
             case V1_20_R2 -> new V1_20_R2();
+            case V1_20_R3 -> new V1_20_R3();
             default -> null;
         };
         return this.challengeNMS != null;

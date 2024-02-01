@@ -7,7 +7,6 @@ import su.nightexpress.excellentchallenges.Placeholders;
 import su.nightexpress.excellentchallenges.challenge.difficulty.Difficulty;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class GenObject {
 
@@ -34,7 +33,7 @@ public class GenObject {
                 Map<String, Set<String>> map = new HashMap<>();
                 for (String diffs : cfg2.getSection(path2)) {
                     for (String diffId : diffs.split(",")) {
-                        map.put(diffId.toLowerCase(), cfg2.getStringSet(path2 + "." + diffs).stream().map(String::toLowerCase).collect(Collectors.toSet()));
+                        map.put(diffId.toLowerCase(), cfg2.getStringSet(path2 + "." + diffs)/*.stream().map(String::toLowerCase).collect(Collectors.toSet())*/);
                     }
                 }
                 return map;

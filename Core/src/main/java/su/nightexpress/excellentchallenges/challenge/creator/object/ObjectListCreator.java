@@ -48,6 +48,6 @@ public class ObjectListCreator {
     }
 
     public GenAmountObject pack() {
-        return new GenAmountObject(String.valueOf(index), weight, items, amount);
+        return new GenAmountObject(String.valueOf(index), weight, items, amount, false);
     }
 }

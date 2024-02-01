@@ -22,7 +22,7 @@ public class GenObjectiveObject extends GenAmountObject {
                               @NotNull DifficultyValue amount,
                               @NotNull DifficultyValue progress
                               ) {
-        super(id, weight, items, amount);
+        super(id, weight, items, amount, false);
         //this.name = name;
         //this.namesListId = namesListId.toLowerCase();
         //this.icons = icons;

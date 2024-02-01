@@ -7,13 +7,15 @@
     <groupId>su.nightexpress.challengesrenewed</groupId>
     <artifactId>ExcellentChallenges</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.1</version>
+    <version>3.0.5</version>
     <modules>
         <module>Core</module>
         <module>NMS</module>
         <module>V1_18_R2</module>
         <module>V1_19_R3</module>
         <module>V1_20_R2</module>
+        <module>V1_20_R1</module>
+        <module>V1_20_R3</module>
     </modules>
 
     <properties>
@@ -61,7 +63,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.20.2-R0.1-SNAPSHOT</version>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.lumine</groupId>
